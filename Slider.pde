@@ -2,16 +2,26 @@ public class Slider {
   private float centerX, centerY;
   private float x, y;
   private int width, height;
+  private int sWidth, sHeight;
   private int r, g, b, r1, g1, b1;
   private int cr, cg, cb;
   private boolean activated;
+  private boolean vertical;
 
 
-  public Slider(int x, int y, int width, int height) {
+  public Slider(int x, int y, int width, int height, boolean vertical) {
     this.centerX = x;
     this.centerY = y;
     this.x = x;
     this.y = y;
+    this.vertical = vertical;
+    if(vertical){
+      sWidth = width;
+      sHeight = height / 8;
+    }else{
+      sWidth = width/8;
+      sHeight = height;
+    }
     this.width = width;
     this.height = height;
     r = 230;
@@ -23,6 +33,12 @@ public class Slider {
     cr = r1;
     cg = g1;
     cb = b1;
+  }
+  
+  public Slider(int x, int y, int width, int height, boolean vertical, int sWidth, int sHeight){
+    this(x,y,width,height,vertical);
+    this.sWidth = sWidth;
+    this.sHeight = sHeight;
   }
 
   public void setBackground(int r, int g, int b) {
@@ -50,14 +66,14 @@ public class Slider {
     mouseInteractions();
     fill(cr, cg, cb);
     rectMode(CENTER);
-    rect(x, y, width/4, height);
+    rect(x, y, sWidth, sHeight);
     popMatrix();
   }
 
   private void mouseInteractions() {
     double mx = mouseX;
     double my = mouseY;
-    boolean mouseon =  (mx > x - (this.width/8) && mx < x + (this.width/8) && my > y - (this.height/2) && my < y + (this.height/2));
+    boolean mouseon =  (mx > x - (sWidth/2) && mx < x + (sWidth/2) && my > y - (sHeight/2) && my < y + (sHeight/2));
     if (mouseon) {
       if (mousePressed) {
         activated = true;
@@ -76,7 +92,9 @@ public class Slider {
     }
     if (!mousePressed) activated = false;
     if (activated) {
-      x = (this.width/8) + mouseX <= 600 ? mouseX : 600 - this.width/8;
+      if (vertical)
+        y = (sHeight/2) + mouseY <= 600 ? mouseY : 600 - sHeight/2;
+      else x = mouseX - sWidth/2 < 0 ? 0 + sWidth/2 : (sWidth/2) + mouseX <= 600 ? mouseX : 600 - sWidth/2;
       if (cr > r1) cr--;
       if (cg > g1) cg--;
       if (cb > b1) cb--;
@@ -87,5 +105,8 @@ public class Slider {
   }
   public int getY() {
     return (int) y;
+  }
+  public int getProgress(){
+    return (int) (100 * (x/(centerX + this.width)));
   }
 }
